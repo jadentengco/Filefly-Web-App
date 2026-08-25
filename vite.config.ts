@@ -7,7 +7,10 @@ export default defineConfig(() => {
   // Automatically detect GitHub Pages repository subpath in GitHub Actions,
   // or use BASE_URL / relative './' for local/preview builds.
   const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1];
-  const base = process.env.BASE_URL || (repoName ? `/${repoName}/` : './');
+  let base = process.env.BASE_URL || (repoName ? `/${repoName}/` : './');
+  if (base && !base.endsWith('/') && base !== './') {
+    base = `${base}/`;
+  }
 
   return {
     base,
