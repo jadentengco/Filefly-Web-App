@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Lock, Mail, User as UserIcon, ArrowRight, Check, Eye, EyeOff, Shield, X, Sparkles } from 'lucide-react';
+import { Lock, Mail, User as UserIcon, ArrowRight, Check, Eye, EyeOff, Shield, X } from 'lucide-react';
 import { FireflyLogo } from './FireflyLogo';
-import { signInWithEmailPassword, signUpWithEmailPassword, DEMO_USERS } from '../lib/auth';
+import { signInWithEmailPassword, signUpWithEmailPassword } from '../lib/auth';
 import { User, UserRole } from '../types';
 
 interface AuthModalProps {
@@ -51,20 +51,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickDemoLogin = async (demoUser: typeof DEMO_USERS[0]) => {
-    setErrorMsg(null);
-    setIsLoading(true);
-    try {
-      const user = await signInWithEmailPassword(demoUser.email, 'password123');
-      onSuccess(user);
-      onClose();
-    } catch (err: any) {
-      setErrorMsg(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -232,11 +218,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   Password
                 </label>
-                {mode === 'signin' && (
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                    Demo pass: <code className="text-slate-600 dark:text-slate-300 font-mono">password123</code>
-                  </span>
-                )}
               </div>
               <div className="relative">
                 <Lock
@@ -278,48 +259,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
             </button>
           </form>
-
-          {/* Quick Demo Login Preset Buttons */}
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-center mb-3">
-              Or Try 1-Click Demo Profiles
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                id="demo-login-sarah"
-                onClick={() => handleQuickDemoLogin(DEMO_USERS[0])}
-                className="p-2.5 bg-slate-50 dark:bg-slate-900 hover:bg-lime-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 hover:border-lime-300 dark:hover:border-slate-700 rounded-xl text-left transition-all group"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
-                    S
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">Sarah Chen</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Freelancer</p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                id="demo-login-alex"
-                onClick={() => handleQuickDemoLogin(DEMO_USERS[1])}
-                className="p-2.5 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-slate-700 rounded-xl text-left transition-all group"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">
-                    A
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">Alex Rivera</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Client Account</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

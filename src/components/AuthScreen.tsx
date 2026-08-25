@@ -8,7 +8,6 @@ import {
   Eye, 
   EyeOff, 
   ShieldCheck, 
-  Sparkles, 
   FolderLock, 
   Layers, 
   Zap, 
@@ -19,7 +18,7 @@ import {
 } from 'lucide-react';
 import { FireflyLogo } from './FireflyLogo';
 import { ThemeToggle } from './ThemeToggle';
-import { signInWithEmailPassword, signUpWithEmailPassword, DEMO_USERS } from '../lib/auth';
+import { signInWithEmailPassword, signUpWithEmailPassword } from '../lib/auth';
 import { User, UserRole } from '../types';
 
 interface AuthScreenProps {
@@ -67,19 +66,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Authentication failed. Please verify credentials.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickDemoLogin = async (demoUser: typeof DEMO_USERS[0]) => {
-    setErrorMsg(null);
-    setIsLoading(true);
-    try {
-      const user = await signInWithEmailPassword(demoUser.email, 'password123');
-      onSuccess(user);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Demo sign-in failed.');
     } finally {
       setIsLoading(false);
     }
@@ -275,11 +261,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                       Password
                     </label>
-                    {mode === 'signin' && (
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                        Demo pass: <code className="text-slate-600 dark:text-slate-300 font-mono">password123</code>
-                      </span>
-                    )}
                   </div>
                   <div className="relative">
                     <Lock
@@ -321,40 +302,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                   )}
                 </button>
               </form>
-
-              {/* Demo Profiles Quick Access */}
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2.5 flex items-center gap-1.5">
-                  <Sparkles size={12} className="text-[#a3e635]" />
-                  Or Quick Demo Access:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {DEMO_USERS.map((demo) => (
-                    <button
-                      key={demo.id}
-                      id={`demo-user-btn-${demo.id}`}
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => handleQuickDemoLogin(demo)}
-                      className="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:border-lime-400 dark:hover:border-[#a3e635] text-left transition-all group cursor-pointer disabled:opacity-50"
-                    >
-                      <div
-                        className={`w-7 h-7 rounded-lg ${demo.avatarColor} text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-xs`}
-                      >
-                        {demo.name.charAt(0)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-lime-700 dark:group-hover:text-[#a3e635]">
-                          {demo.name}
-                        </p>
-                        <p className="text-[10px] text-slate-400 capitalize">
-                          {demo.role}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
