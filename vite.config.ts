@@ -4,13 +4,11 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
-  // Automatically detect GitHub Pages repository subpath in GitHub Actions,
-  // or use BASE_URL / relative './' for local/preview builds.
-  const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1];
-  let base = process.env.BASE_URL || (repoName ? `/${repoName}/` : './');
-  if (base && !base.endsWith('/') && base !== './') {
-    base = `${base}/`;
-  }
+  // Use relative './' by default so assets load correctly on any GitHub Pages subpath,
+  // custom domain, or preview environment without root 404 pathing errors.
+  const base = process.env.BASE_URL && process.env.BASE_URL !== '/' 
+    ? (process.env.BASE_URL.endsWith('/') ? process.env.BASE_URL : `${process.env.BASE_URL}/`)
+    : './';
 
   return {
     base,
