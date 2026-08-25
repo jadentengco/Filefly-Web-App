@@ -455,8 +455,13 @@ export function subscribeToUserFiles(
   let unsubscribeFn: (() => void) = () => {};
   let isCancelled = false;
 
-  ensureAuth().then(() => {
-    if (isCancelled) return;
+  // If this is a temporary guest or offline-only user, skip remote subscription
+  if (!userId || userId.startsWith('user_guest_')) {
+    return () => {};
+  }
+
+  ensureAuth().then((currentUser) => {
+    if (isCancelled || !currentUser) return;
     try {
       const q = query(collection(db, 'files'), where('userId', '==', userId));
       unsubscribeFn = onSnapshot(q, async (snapshot) => {
@@ -501,10 +506,15 @@ export function subscribeToUserFiles(
         files.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
         callback(files);
       }, (error) => {
-        console.warn('Firestore subscription error:', error);
+        // Log friendly note if operating in offline mode or network unavailable
+        if (error?.message?.includes('unavailable') || error?.message?.includes('offline')) {
+          console.info('Firestore operating in offline local cache mode.');
+        } else {
+          console.warn('Firestore subscription notice:', error?.message || error);
+        }
       });
     } catch (err) {
-      console.warn('Failed to attach Firestore snapshot listener:', err);
+      console.warn('Firestore snapshot setup notice:', err);
     }
   });
 
@@ -591,8 +601,8 @@ export function subscribeToAllUsers(
   let unsubscribeFn: (() => void) = () => {};
   let isCancelled = false;
 
-  ensureAuth().then(() => {
-    if (isCancelled) return;
+  ensureAuth().then((currentUser) => {
+    if (isCancelled || !currentUser) return;
     try {
       unsubscribeFn = onSnapshot(collection(db, 'users'), (snapshot) => {
         const users: any[] = [];
@@ -609,10 +619,12 @@ export function subscribeToAllUsers(
         });
         callback(users);
       }, (error) => {
-        console.warn('Firestore all users subscription error:', error);
+        if (!error?.message?.includes('unavailable') && !error?.message?.includes('offline')) {
+          console.warn('Firestore all users subscription note:', error?.message || error);
+        }
       });
     } catch (err) {
-      console.warn('Failed to attach Firestore all users listener:', err);
+      console.warn('Firestore all users setup note:', err);
     }
   });
 
@@ -628,8 +640,8 @@ export function subscribeToAllFiles(
   let unsubscribeFn: (() => void) = () => {};
   let isCancelled = false;
 
-  ensureAuth().then(() => {
-    if (isCancelled) return;
+  ensureAuth().then((currentUser) => {
+    if (isCancelled || !currentUser) return;
     try {
       unsubscribeFn = onSnapshot(collection(db, 'files'), async (snapshot) => {
         const files: FileItem[] = [];
@@ -669,10 +681,12 @@ export function subscribeToAllFiles(
         files.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
         callback(files);
       }, (error) => {
-        console.warn('Firestore all files subscription error:', error);
+        if (!error?.message?.includes('unavailable') && !error?.message?.includes('offline')) {
+          console.warn('Firestore all files subscription note:', error?.message || error);
+        }
       });
     } catch (err) {
-      console.warn('Failed to attach Firestore all files snapshot listener:', err);
+      console.warn('Firestore all files setup note:', err);
     }
   });
 
