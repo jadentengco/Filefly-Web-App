@@ -78,16 +78,7 @@ export function getCurrentUser(): User | null {
   } catch {
     // fallback
   }
-  // Default to Sarah Chen (Freelancer) demo profile on initial launch
-  const defaultUser = DEMO_USERS[1];
-  try {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(defaultUser));
-    }
-  } catch {
-    // ignore
-  }
-  return defaultUser;
+  return null;
 }
 
 export function setCurrentUser(user: User | null): void {
