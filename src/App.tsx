@@ -324,30 +324,22 @@ export default function App() {
         />
 
         {/* Global File Preview Modal for Admin inspection */}
-        {activePreviewFile && (
-          <PreviewModal
-            file={activePreviewFile}
-            onClose={() => setActivePreviewFile(null)}
-            onDownload={() => handleDownloadFile(activePreviewFile)}
-            onConvert={() => {
-              setActiveConvertFile(activePreviewFile);
-            }}
-            onDelete={async () => {
-              await handleDeleteFile(activePreviewFile.id);
-              setActivePreviewFile(null);
-            }}
-          />
-        )}
+        <PreviewModal
+          isOpen={Boolean(activePreviewFile)}
+          fileItem={activePreviewFile}
+          onClose={() => setActivePreviewFile(null)}
+          onDownload={handleDownloadFile}
+          onConvert={setActiveConvertFile}
+          onDelete={handleDeleteFile}
+        />
 
         {/* Global Convert Modal */}
-        {activeConvertFile && (
-          <ConvertModal
-            file={activeConvertFile}
-            onClose={() => setActiveConvertFile(null)}
-            onSaveConvertedFile={handleSavedConvertedFile}
-            userId={currentUser.id}
-          />
-        )}
+        <ConvertModal
+          isOpen={Boolean(activeConvertFile)}
+          fileItem={activeConvertFile}
+          onClose={() => setActiveConvertFile(null)}
+          onSavedConvertedFile={handleSavedConvertedFile}
+        />
       </div>
     );
   }

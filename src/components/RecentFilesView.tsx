@@ -364,7 +364,7 @@ export const RecentFilesView: React.FC<RecentFilesViewProps> = ({
                           id={`recent-checkbox-${file.id}`}
                           type="checkbox"
                           checked={isSelected}
-                          onChange={(e) => toggleSelectFile(file.id, e)}
+                          onChange={() => toggleSelectFile(file.id)}
                           className="sr-only"
                         />
                         {isSelected ? (

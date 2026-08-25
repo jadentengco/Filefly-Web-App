@@ -26,19 +26,30 @@ import {
 } from 'firebase/storage';
 import config from '../../firebase-applet-config.json';
 
-// Initialize Firebase App singleton
-export const firebaseApp = !getApps().length ? initializeApp(config) : getApp();
+// Safe configuration with defaults
+const firebaseConfig = {
+  projectId: config?.projectId || 'gen-lang-client-0420214686',
+  appId: config?.appId || '1:921555207161:web:f71018855cd2fb61ecb328',
+  apiKey: config?.apiKey || 'AIzaSyCJOJTx_a11yGvgjCAaTtr2DF6WCQb4foY',
+  authDomain: config?.authDomain || 'gen-lang-client-0420214686.firebaseapp.com',
+  firestoreDatabaseId: config?.firestoreDatabaseId || 'ai-studio-filefly-58be3d23-b26f-48d1-8db5-bf88d6ee67b5',
+  storageBucket: config?.storageBucket || 'gen-lang-client-0420214686.firebasestorage.app',
+  messagingSenderId: config?.messagingSenderId || '921555207161',
+};
+
+// Initialize Firebase App singleton safely
+export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Firestore with specific database ID if configured
-export const db: Firestore = config.firestoreDatabaseId
-  ? getFirestore(firebaseApp, config.firestoreDatabaseId)
+export const db: Firestore = firebaseConfig.firestoreDatabaseId
+  ? getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId)
   : getFirestore(firebaseApp);
 
 export const auth: Auth = getAuth(firebaseApp);
 
 // Initialize Firebase Storage
-export const storage: FirebaseStorage = config.storageBucket
-  ? getStorage(firebaseApp, `gs://${config.storageBucket.replace(/^gs:\/\//, '')}`)
+export const storage: FirebaseStorage = firebaseConfig.storageBucket
+  ? getStorage(firebaseApp, `gs://${firebaseConfig.storageBucket.replace(/^gs:\/\//, '')}`)
   : getStorage(firebaseApp);
 
 // Automatic anonymous auth fallback if not already signed in

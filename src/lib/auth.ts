@@ -188,7 +188,7 @@ export async function signUpWithEmailPassword(
   name: string,
   email: string,
   password: string,
-  role: 'freelancer' | 'client' = 'freelancer'
+  role: UserRole = 'freelancer'
 ): Promise<User> {
   const normalizedEmail = email.trim().toLowerCase();
   const avatarColors = [
