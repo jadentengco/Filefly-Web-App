@@ -1,0 +1,6 @@
+{
+  "name": "Filefly",
+  "description": "A client file portal for freelancers and designers to securely upload, manage, and convert files into different formats like JPEG, PNG, WebP, PDF, and HEIC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

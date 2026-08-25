@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile data and role",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["freelancer", "client", "admin"] },
+        "avatarColor": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "email", "name", "role", "createdAt"]
+    },
+    "FileRecord": {
+      "title": "FileRecord",
+      "description": "Cloud synced file metadata, tags, and deliverable records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "size": { "type": "number" },
+        "type": { "type": "string" },
+        "extension": { "type": "string" },
+        "uploadedAt": { "type": "string" },
+        "clientName": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "convertedFromId": { "type": "string" },
+        "conversionFormat": { "type": "string" },
+        "dataUrl": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "size", "type", "extension", "uploadedAt"]
+    },
+    "PortalSettings": {
+      "title": "PortalSettings",
+      "description": "Client deliverable portal configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "portalName": { "type": "string" },
+        "welcomeMessage": { "type": "string" },
+        "allowedFormats": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "allowClientConversion": { "type": "boolean" },
+        "requireClientName": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "portalName"]
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "UserProfile",
+      "description": "User profile collection indexed by user ID"
+    },
+    "files": {
+      "schema": "FileRecord",
+      "description": "Cloud synced files, tags, and deliverable records"
+    },
+    "settings": {
+      "schema": "PortalSettings",
+      "description": "User portal preferences and deliverable config"
+    }
+  }
+}

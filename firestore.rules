@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Check if request is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Admin user ID check
+    function isAdmin() {
+      return isAuthenticated() && request.auth.uid == 'AhQ2HfLuNqhS242HgTKSJu0ye302';
+    }
+    
+    // Validate valid user profile payload
+    function isValidUser() {
+      return request.resource.data.keys().hasAll(['id', 'email', 'name', 'role']) &&
+             request.resource.data.email is string &&
+             request.resource.data.name is string &&
+             request.resource.data.role in ['freelancer', 'client', 'admin'];
+    }
+
+    // Validate file metadata payload
+    function isValidFileRecord() {
+      return request.resource.data.keys().hasAll(['id', 'userId', 'name', 'size', 'type', 'extension', 'uploadedAt']) &&
+             request.resource.data.name is string &&
+             request.resource.data.name.size() > 0 &&
+             request.resource.data.name.size() <= 300 &&
+             request.resource.data.size is number &&
+             request.resource.data.type is string &&
+             request.resource.data.userId is string;
+    }
+
+    // User profiles: Admin can read all users; other users can read only their own profile
+    match /users/{userId} {
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == userId);
+      allow create: if isAuthenticated() && isValidUser() && (request.auth.uid == userId || isAdmin());
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Files: Admin has read access to all files; other users are locked down to their own files only
+    match /files/{fileId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && isValidFileRecord() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated() && (isAdmin() || (request.auth.uid == resource.data.userId && request.resource.data.userId == resource.data.userId));
+      allow delete: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
+    }
+
+    // Deliverable Portal Settings
+    match /settings/{settingId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create, update: if isAuthenticated() && (isAdmin() || request.resource.data.userId == request.auth.uid) &&
+                            request.resource.data.keys().hasAll(['id', 'userId', 'portalName']) &&
+                            request.resource.data.portalName is string;
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+  }
+}
