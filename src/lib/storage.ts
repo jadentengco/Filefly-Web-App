@@ -82,26 +82,38 @@ export async function deleteFileFromFirebaseStorage(storagePath: string): Promis
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    if (typeof window === 'undefined' || !window.indexedDB) {
+      reject(new Error('IndexedDB not supported in this environment'));
+      return;
+    }
+    try {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-    request.onupgradeneeded = (event) => {
-      const idb = (event.target as IDBOpenDBRequest).result;
-      let store: IDBObjectStore;
-      if (!idb.objectStoreNames.contains(STORE_FILES)) {
-        store = idb.createObjectStore(STORE_FILES, { keyPath: 'id' });
-        store.createIndex('userId', 'userId', { unique: false });
-        store.createIndex('uploadedAt', 'uploadedAt', { unique: false });
-      } else {
-        store = (event.target as IDBOpenDBRequest).transaction!.objectStore(STORE_FILES);
-      }
+      request.onupgradeneeded = (event) => {
+        try {
+          const idb = (event.target as IDBOpenDBRequest).result;
+          let store: IDBObjectStore;
+          if (!idb.objectStoreNames.contains(STORE_FILES)) {
+            store = idb.createObjectStore(STORE_FILES, { keyPath: 'id' });
+            store.createIndex('userId', 'userId', { unique: false });
+            store.createIndex('uploadedAt', 'uploadedAt', { unique: false });
+          } else {
+            store = (event.target as IDBOpenDBRequest).transaction!.objectStore(STORE_FILES);
+          }
 
-      if (!store.indexNames.contains('tags')) {
-        store.createIndex('tags', 'tags', { unique: false, multiEntry: true });
-      }
-    };
+          if (!store.indexNames.contains('tags')) {
+            store.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+          }
+        } catch {
+          // ignore upgrade error
+        }
+      };
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('Failed to open IndexedDB'));
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
@@ -295,25 +307,32 @@ export async function getFilesByUser(userId: string): Promise<FileItem[]> {
     
     if (!querySnapshot.empty) {
       const cloudFiles: FileItem[] = [];
-      const localIdb = await openDB();
+      let localIdb: IDBDatabase | null = null;
+      try {
+        localIdb = await openDB();
+      } catch {
+        // ignore IDB availability
+      }
 
       for (const d of querySnapshot.docs) {
         const data = d.data() as FileItem;
         let blob = data.blob;
 
         // Try getting original binary blob from local IndexedDB if present
-        try {
-          const localItem = await new Promise<FileItem | null>((resolve) => {
-            const tx = localIdb.transaction(STORE_FILES, 'readonly');
-            const req = tx.objectStore(STORE_FILES).get(data.id);
-            req.onsuccess = () => resolve(req.result || null);
-            req.onerror = () => resolve(null);
-          });
-          if (localItem?.blob) {
-            blob = localItem.blob;
+        if (localIdb) {
+          try {
+            const localItem = await new Promise<FileItem | null>((resolve) => {
+              const tx = localIdb!.transaction(STORE_FILES, 'readonly');
+              const req = tx.objectStore(STORE_FILES).get(data.id);
+              req.onsuccess = () => resolve(req.result || null);
+              req.onerror = () => resolve(null);
+            });
+            if (localItem?.blob) {
+              blob = localItem.blob;
+            }
+          } catch {
+            // ignore local read
           }
-        } catch {
-          // ignore local read
         }
 
         // If no blob in IndexedDB, reconstruct from stored dataUrl if available
@@ -340,23 +359,27 @@ export async function getFilesByUser(userId: string): Promise<FileItem[]> {
   }
 
   // Fallback to local IndexedDB
-  const idb = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = idb.transaction(STORE_FILES, 'readonly');
-    const store = tx.objectStore(STORE_FILES);
-    const index = store.index('userId');
-    const request = index.getAll(userId);
+  try {
+    const idb = await openDB();
+    return new Promise((resolve) => {
+      const tx = idb.transaction(STORE_FILES, 'readonly');
+      const store = tx.objectStore(STORE_FILES);
+      const index = store.index('userId');
+      const request = index.getAll(userId);
 
-    request.onsuccess = () => {
-      const items: FileItem[] = (request.result || []).map((item) => ({
-        ...item,
-        tags: item.tags || [],
-      }));
-      items.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
-      resolve(items);
-    };
-    request.onerror = () => reject(request.error);
-  });
+      request.onsuccess = () => {
+        const items: FileItem[] = (request.result || []).map((item) => ({
+          ...item,
+          tags: item.tags || [],
+        }));
+        items.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
+        resolve(items);
+      };
+      request.onerror = () => resolve([]);
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function getFileById(id: string): Promise<FileItem | null> {

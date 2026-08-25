@@ -70,20 +70,37 @@ function getStoredUsers(): StoredAuthUser[] {
 }
 
 export function getCurrentUser(): User | null {
-  const data = localStorage.getItem(CURRENT_USER_KEY);
-  if (!data) return null;
   try {
-    return JSON.parse(data);
+    const data = typeof window !== 'undefined' ? localStorage.getItem(CURRENT_USER_KEY) : null;
+    if (data) {
+      return JSON.parse(data);
+    }
   } catch {
-    return null;
+    // fallback
   }
+  // Default to Sarah Chen (Freelancer) demo profile on initial launch
+  const defaultUser = DEMO_USERS[1];
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(defaultUser));
+    }
+  } catch {
+    // ignore
+  }
+  return defaultUser;
 }
 
 export function setCurrentUser(user: User | null): void {
-  if (user) {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-  } else {
-    localStorage.removeItem(CURRENT_USER_KEY);
+  try {
+    if (typeof window !== 'undefined') {
+      if (user) {
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(CURRENT_USER_KEY);
+      }
+    }
+  } catch {
+    // ignore
   }
 }
 
