@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <!-- Background Glow for high visibility in browser tabs -->
+    <radialGradient id="tabGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E2FF66" stop-opacity="0.85"/>
+      <stop offset="60%" stop-color="#A3E635" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#84CC16" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Bioluminescent Lantern Gradient -->
+    <radialGradient id="lanternGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="60%" stop-color="#A3E635" />
+      <stop offset="100%" stop-color="#4D7C0F" />
+    </radialGradient>
+    
+    <!-- Wings Gradients -->
+    <linearGradient id="wingGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#ECFDF5" stop-opacity="0.4" />
+    </linearGradient>
+
+    <linearGradient id="wingGradRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#ECFDF5" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Body Gradient -->
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Ambient Glow -->
+  <circle cx="24" cy="24" r="23" fill="url(#tabGlow)" />
+
+  <!-- Antennae -->
+  <path d="M21 15C19 10 14 8 11 9" stroke="#0F172A" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="10" cy="9" r="1.5" fill="#0F172A" />
+  
+  <path d="M27 15C29 10 34 8 37 9" stroke="#0F172A" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="38" cy="9" r="1.5" fill="#0F172A" />
+
+  <!-- Glowing Lantern Abdomen (Tail) -->
+  <ellipse cx="24" cy="34" rx="6.5" ry="8" fill="url(#lanternGlow)"/>
+  <!-- Lantern Core Light -->
+  <ellipse cx="24" cy="34" rx="3.5" ry="4.5" fill="#FEF9C3" opacity="0.95"/>
+
+  <!-- Left Translucent Wing -->
+  <path d="M22 21C13 14 7 21 11 30C14 36 21 28 22 23Z" fill="url(#wingGradLeft)" stroke="#0F172A" stroke-width="1.2" stroke-opacity="0.75"/>
+  <path d="M20 22C16 19 12 24 14 28" stroke="#0F172A" stroke-width="0.8" stroke-opacity="0.4" stroke-linecap="round"/>
+
+  <!-- Right Translucent Wing -->
+  <path d="M26 21C35 14 41 21 37 30C34 36 27 28 26 23Z" fill="url(#wingGradRight)" stroke="#0F172A" stroke-width="1.2" stroke-opacity="0.75"/>
+  <path d="M28 22C32 19 36 24 34 28" stroke="#0F172A" stroke-width="0.8" stroke-opacity="0.4" stroke-linecap="round"/>
+
+  <!-- Thorax (Middle Body) -->
+  <ellipse cx="24" cy="23" rx="4.5" ry="5" fill="url(#bodyGrad)"/>
+
+  <!-- Head -->
+  <circle cx="24" cy="15.5" r="3.5" fill="url(#bodyGrad)"/>
+
+  <!-- Eyes -->
+  <circle cx="22.5" cy="14.5" r="0.8" fill="#F8FAFC"/>
+  <circle cx="25.5" cy="14.5" r="0.8" fill="#F8FAFC"/>
+</svg>
